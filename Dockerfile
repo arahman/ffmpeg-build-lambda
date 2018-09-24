@@ -55,15 +55,7 @@ RUN apt-get update -qq \
 
 WORKDIR /tmp
 
-# openjpeg
-RUN git clone https://github.com/uclouvain/openjpeg.git --branch master --single-branch \
-	&& cd openjpeg \
-	&& cmake -DBUILD_THIRDPARTY:BOOL=ON -DCMAKE_INSTALL_PREFIX="${PREFIX}" . \
-	&& make -j "${NUM_CORES}" \
-	&& make install \
-	&& make clean
-
-# libx265
+# rm
 RUN git clone https://github.com/videolan/x265.git --branch master --single-branch \
 	&& cd ./x265/build/linux \
 	&& cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${PREFIX}" -DENABLE_SHARED:bool=off ../../source \
@@ -74,6 +66,7 @@ RUN git clone https://github.com/videolan/x265.git --branch master --single-bran
 # fribidi
 RUN git clone https://github.com/fribidi/fribidi.git --branch master --single-branch \
 	&& cd fribidi \
+    && git checkout -b new_branch 0efbaa9 \
 	&& sed -i 's/^SUBDIRS =.*/SUBDIRS=gen.tab charset lib/' Makefile.am \
 	&& ./bootstrap --no-config \
 	&& ./configure -prefix="${PREFIX}" --enable-static=yes --enable-shared=no \
@@ -112,15 +105,10 @@ RUN export \
 		--disable-debug \
 		--disable-runtime-cpudetect \
 		--disable-ffplay \
-		--disable-ffserver \
+		--disable-ffprobe \
 		--disable-doc \
-		--disable-network \
 		--disable-devices \
 		# Protocols
-		--disable-protocols \
-		--enable-protocol=file \
-		--enable-protocol=pipe \
-		--enable-protocol=tee \
 		# Libraries
 		--enable-libmp3lame \
 		--enable-libvpx \
@@ -129,7 +117,6 @@ RUN export \
 		--enable-fontconfig \
 		--enable-gray \
 		--enable-libfreetype \
-		--enable-libopenjpeg \
 		--enable-libspeex \
 		--enable-libtheora \
 		--enable-libvorbis \
