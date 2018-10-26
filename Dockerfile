@@ -74,6 +74,14 @@ RUN git clone https://github.com/fribidi/fribidi.git --branch master --single-br
 	&& make install \
 	&& make clean
 
+RUN mkdir ~/ffmpeg_sources;cd ~/ffmpeg_sources && \
+	git -C fdk-aac pull 2> /dev/null || git clone --depth 1 https://github.com/mstorsjo/fdk-aac && \
+	cd fdk-aac && \
+	autoreconf -fiv && \
+	./configure --prefix="${PREFIX}" --disable-shared && \
+	make && \
+	make install
+
 # soxr
 RUN git clone https://git.code.sf.net/p/soxr/code soxr --branch master --single-branch \
 	&& cd soxr \
@@ -132,6 +140,8 @@ RUN export \
 		--enable-libopencore-amrnb \
 		--enable-libopencore-amrwb \
 		--enable-libvo-amrwbenc \
+		--enable-nonfree \
+		--enable-libfdk_aac \
 	|| if [ $? -gt 0 ]; then \
 		tail -n 100 ./ffbuild/config.log && \
 		exit 1 \
